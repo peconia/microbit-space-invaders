@@ -2,6 +2,7 @@ import serial, pygame
 from time import sleep
 from pygame.locals import *
 from textprint import *
+from player import Player
 
 
 def open_serial_port():
@@ -24,12 +25,13 @@ pygame.init()
 s = open_serial_port()
  
 # Set up the game window and starting point
-size = (800, 600)
+size = width, height = 900, 600
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("SPACE INVADERS <3")
 clock = pygame.time.Clock()
-current_position = 0
 quit_game = False
+player = Player(screen, width, height)
+
  
 
 # -------- Main Program Loop -----------
@@ -61,19 +63,19 @@ while not quit_game:
         x, a, b = data_list
         # handle moving
         x = float(x)
-        if x > current_position + 20:
-            printer.print(screen, "RIGHT", RED)
-        elif x< current_position - 20:
-            printer.print(screen, "LEFT", WHITE)
+        if x > 50:
+            player.move_right()
+        elif x < - 50:
+            player.move_left()
         else:
-            printer.print(screen, "STILL", GREEN)
-        current_position = x
+            player.stay_still()
 
         # button presses
         if a == 'True' and b == 'True':
             quit_game = True
         if a == "True":
             printer.print(screen, "A pressed", WHITE)
+            player.move_right()
 
         if b == "True":
             printer.print(screen, "B pressed", WHITE)
