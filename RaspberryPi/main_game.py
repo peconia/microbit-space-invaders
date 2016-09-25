@@ -41,6 +41,7 @@ alien = Alien()
 
 all_sprites_list.add(player)
 all_sprites_list.add(alien)
+alien_sprite_list.add(alien)
  
 
 # -------- Main Program Loop -----------
@@ -50,32 +51,21 @@ while not quit_game:
         if event.type == pygame.QUIT:
             quit_game = True
  
-    # --- Game logic should go here
     all_sprites_list.update()
- 
-    # --- Screen-clearing code goes here
- 
-    # Here, we clear the screen to white. Don't put other drawing commands
-    # above this, or they will be erased with this command.
- 
-    # If you want a background image, replace this clear with blit'ing the
-    # background image.
-    screen.fill(BLACK)
-    
-     
-    # --- Drawing code should go here
+
+    # read data from microbit 
     data = s.readline().decode('UTF-8')
     data_list = data.rstrip().split(' ')
     try:
         x, a, b = data_list
-        # handle moving
+        # handle player moving
         x = float(x)
         if x > 50:
             player.move_right()
         elif x < - 50:
             player.move_left()
 
-        # button presses
+        # handle button presses
         if a == 'True' and b == 'True':
             quit_game = True
         if a == "True":
@@ -90,6 +80,23 @@ while not quit_game:
     except ValueError:
         # it is okay, might not have data coming through
         pass
+
+    # handle all bullets
+    for bullet in bullet_sprite_list:
+        # check if hit alien
+        alien_hit_list = pygame.sprite.spritecollide(bullet, alien_sprite_list, True)
+
+        for alien in alien_hit_list:
+            bullet_sprite_list.remove(bullet)
+            all_sprites_list.remove(bullet)
+
+        # clean up bullet if it is outside of screen
+        if bullet.rect.y < -10:
+            bullet_sprite_list.remove(bullet)
+            all_sprites_list.remove(bullet)
+            
+    # clear screen
+    screen.fill(BLACK)
 
     # update points and ammo
     points_printer.print('POINTS    {0:0>3}'.format(str(points)), PINK)
