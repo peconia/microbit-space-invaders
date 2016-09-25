@@ -2,9 +2,8 @@ import pygame
 
 class Alien(pygame.sprite.Sprite):
 
-    def __init__(self, screen):
+    def __init__(self):
         super().__init__()
-        self.screen = screen
         self.image_number = 0
         self.images = [pygame.image.load('Resources/Images/alien_1A.png'),
                        pygame.image.load('Resources/Images/alien_1B.png')]

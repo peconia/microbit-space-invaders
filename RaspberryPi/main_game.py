@@ -5,6 +5,7 @@ from textprint import *
 from player import Player
 from colours import *
 from alien import Alien
+from bullet import Bullet
 
 
 def open_serial_port():
@@ -26,9 +27,9 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("SPACE INVADERS <3")
 clock = pygame.time.Clock()
 quit_game = False
-player = Player(screen, width, height)
+player = Player(width, height)
 points = 0
-ammo = 10
+ammo = 30
 points_printer = TextPrint(screen, 10, 10, 25)
 ammo_printer = TextPrint(screen, width - 200, 10, 25)
 
@@ -36,7 +37,7 @@ all_sprites_list = pygame.sprite.Group()
 bullet_sprite_list = pygame.sprite.Group()
 alien_sprite_list = pygame.sprite.Group()
 
-alien = Alien(screen)
+alien = Alien()
 
 all_sprites_list.add(player)
 all_sprites_list.add(alien)
@@ -50,6 +51,7 @@ while not quit_game:
             quit_game = True
  
     # --- Game logic should go here
+    all_sprites_list.update()
  
     # --- Screen-clearing code goes here
  
@@ -72,8 +74,6 @@ while not quit_game:
             player.move_right()
         elif x < - 50:
             player.move_left()
-        else:
-            player.stay_still()
 
         # button presses
         if a == 'True' and b == 'True':
@@ -81,14 +81,15 @@ while not quit_game:
         if a == "True":
             points += 1
         if b == "True":
-            ammo = player.shoot()
+            bullet = player.shoot(ammo)
+            if bullet:
+                bullet_sprite_list.add(bullet)
+                all_sprites_list.add(bullet)
+                ammo -= 1
 
     except ValueError:
         # it is okay, might not have data coming through
         pass
-
-    # update aliens
-    alien.update()
 
     # update points and ammo
     points_printer.print('POINTS    {0:0>3}'.format(str(points)), PINK)
@@ -96,6 +97,7 @@ while not quit_game:
         ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), PINK)
     else:
         ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), RED)
+
     # update the screen
     all_sprites_list.draw(screen)
     pygame.display.flip()

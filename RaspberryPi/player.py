@@ -1,12 +1,11 @@
 import pygame
+from bullet import Bullet
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, screen, width, height):
+    def __init__(self, width, height):
         super().__init__()
-        self.screen = screen
         self.screen_width = width
         self.screen_height = height
-        self.ammo = 30
         self.hit = False
         self.image = pygame.image.load('Resources/Images/Player.png')
         self.rect = self.image.get_rect()
@@ -22,10 +21,13 @@ class Player(pygame.sprite.Sprite):
         if self.rect.right > self.screen_width - 5:
             self.rect.right = self.screen_width -5
     
-    def shoot(self):
-        if self.ammo > 0:
-            self.ammo -= 1
-        return self.ammo
+    def shoot(self, ammo):
+        if ammo > 0:
+            bullet = Bullet()
+            bullet.rect.x = self.rect.x + 28
+            bullet.rect.y = self.rect.y - 10
+            return bullet
+        return None
 
     def is_alive(self):
         return not self.hit
