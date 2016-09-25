@@ -3,6 +3,7 @@ from time import sleep
 from pygame.locals import *
 from textprint import *
 from player import Player
+from colours import *
 
 
 def open_serial_port():
@@ -14,12 +15,6 @@ def open_serial_port():
     s.databits = serial.EIGHTBITS
     s.stopbits = serial.STOPBITS_ONE
     return s
-
-# Define some colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
  
 pygame.init()
 s = open_serial_port()
@@ -31,6 +26,10 @@ pygame.display.set_caption("SPACE INVADERS <3")
 clock = pygame.time.Clock()
 quit_game = False
 player = Player(screen, width, height)
+points = 0
+ammo = 10
+points_printer = TextPrint(screen, 10, 10, 25)
+ammo_printer = TextPrint(screen, width - 200, 10, 25)
 
  
 
@@ -51,9 +50,6 @@ while not quit_game:
     # If you want a background image, replace this clear with blit'ing the
     # background image.
     screen.fill(BLACK)
-
-    printer = TextPrint()
-    printer.print(screen, "Hello", GREEN)
     
      
     # --- Drawing code should go here
@@ -74,16 +70,20 @@ while not quit_game:
         if a == 'True' and b == 'True':
             quit_game = True
         if a == "True":
-            printer.print(screen, "A pressed", WHITE)
-            player.move_right()
-
+            points += 1
         if b == "True":
-            printer.print(screen, "B pressed", WHITE)
+            ammo = player.shoot()
 
     except ValueError:
         # it is okay, might not have data coming through
         pass
- 
+
+    # update points and ammo
+    points_printer.print('POINTS    {0:0>3}'.format(str(points)), PINK)
+    if ammo > 5:
+        ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), PINK)
+    else:
+        ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), RED)
     # update the screen 
     pygame.display.flip()
  

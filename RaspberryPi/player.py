@@ -5,7 +5,6 @@ class Player:
         self.screen = screen
         self.screen_width = width
         self.screen_height = height
-        self.speed = [2, 2]
         self.ammo = 30
         self.hit = False
         self.image = pygame.image.load('Resources/Images/Player.png')
@@ -29,7 +28,8 @@ class Player:
     
     def shoot(self):
         if self.ammo > 0:
-            ammo -= 1;        
+            self.ammo -= 1
+        return self.ammo
 
     def is_alive(self):
         return not self.hit
