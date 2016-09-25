@@ -4,6 +4,7 @@ from pygame.locals import *
 from textprint import *
 from player import Player
 from colours import *
+from alien import Alien
 
 
 def open_serial_port():
@@ -31,6 +32,14 @@ ammo = 10
 points_printer = TextPrint(screen, 10, 10, 25)
 ammo_printer = TextPrint(screen, width - 200, 10, 25)
 
+all_sprites_list = pygame.sprite.Group()
+bullet_sprite_list = pygame.sprite.Group()
+alien_sprite_list = pygame.sprite.Group()
+
+alien = Alien(screen)
+
+all_sprites_list.add(player)
+all_sprites_list.add(alien)
  
 
 # -------- Main Program Loop -----------
@@ -78,13 +87,17 @@ while not quit_game:
         # it is okay, might not have data coming through
         pass
 
+    # update aliens
+    alien.update()
+
     # update points and ammo
     points_printer.print('POINTS    {0:0>3}'.format(str(points)), PINK)
     if ammo > 5:
         ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), PINK)
     else:
         ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(ammo)), RED)
-    # update the screen 
+    # update the screen
+    all_sprites_list.draw(screen)
     pygame.display.flip()
  
     # Limit to 60 frames per second
