@@ -37,11 +37,13 @@ all_sprites_list = pygame.sprite.Group()
 bullet_sprite_list = pygame.sprite.Group()
 alien_sprite_list = pygame.sprite.Group()
 
-alien = Alien()
-
 all_sprites_list.add(player)
-all_sprites_list.add(alien)
-alien_sprite_list.add(alien)
+
+for y in range(50, 380, 60):
+    for x in range (60, 860, 100):
+        alien = Alien(x, y)
+        all_sprites_list.add(alien)
+        alien_sprite_list.add(alien)
  
 
 # -------- Main Program Loop -----------
@@ -69,7 +71,7 @@ while not quit_game:
         if a == 'True' and b == 'True':
             quit_game = True
         if a == "True":
-            points += 1
+            pass
         if b == "True":
             bullet = player.shoot(ammo)
             if bullet:
@@ -89,6 +91,7 @@ while not quit_game:
         for alien in alien_hit_list:
             bullet_sprite_list.remove(bullet)
             all_sprites_list.remove(bullet)
+            points += 1
 
         # clean up bullet if it is outside of screen
         if bullet.rect.y < -10:
