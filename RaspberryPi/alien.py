@@ -1,4 +1,6 @@
 import pygame
+import random
+from alien_bullet import AlienBullet
 
 class Alien(pygame.sprite.Sprite):
 
@@ -15,3 +17,13 @@ class Alien(pygame.sprite.Sprite):
     def update(self):
         self.image_number += 1
         self.image = self.images[self.image_number % 2]
+
+    def shoot(self):
+        if not random.randrange(700):
+            bullet = AlienBullet(self.rect.midbottom)
+            return bullet
+        return None
+            
+            
+        
+        

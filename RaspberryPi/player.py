@@ -6,7 +6,6 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.screen_width = width
         self.screen_height = height
-        self.hit = False
         self.image = pygame.image.load('Resources/Images/Player.png')
         self.rect = self.image.get_rect()
         self.rect.bottom = self.screen_height - 10
@@ -19,16 +18,11 @@ class Player(pygame.sprite.Sprite):
     def move_right(self):
         self.rect.right = self.rect.right + 10
         if self.rect.right > self.screen_width - 5:
-            self.rect.right = self.screen_width -5
+            self.rect.right = self.screen_width - 5
     
     def shoot(self, ammo):
         if ammo > 0:
-            bullet = Bullet()
-            bullet.rect.x = self.rect.x + 28
-            bullet.rect.y = self.rect.y - 10
+            bullet = Bullet(self.rect.midtop)
             return bullet
         return None
-
-    def is_alive(self):
-        return not self.hit
         
