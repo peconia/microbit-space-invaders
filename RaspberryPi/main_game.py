@@ -15,7 +15,7 @@ def open_serial_port():
 def main():
     pygame.init()
     s = open_serial_port()
-    quit_game = False
+
     # Set up the game window and starting point
     size = width, height = 900, 600
     screen = pygame.display.set_mode(size)

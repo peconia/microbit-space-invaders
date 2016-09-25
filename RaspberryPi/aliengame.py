@@ -24,9 +24,10 @@ class AlienGame:
 
     def start_new_game(self):
         self.game_over = False
+        self.game_won = False
         self.player = Player(self.width, self.height)
         self.points = 0
-        self.ammo = 100
+        self.ammo = 60
         self.all_sprites_list = pygame.sprite.Group()
         self.bullet_sprite_list = pygame.sprite.Group()
         self.alien_sprite_list = pygame.sprite.Group()
@@ -35,11 +36,13 @@ class AlienGame:
         self.all_sprites_list.add(self.player)
 
         # add some aliens!
+        alien_type = 0
         for y in range(50, 380, 60):
             for x in range (60, 860, 100):
-                alien = Alien(x, y)
+                alien = Alien(x, y, alien_type % 3)
                 self.all_sprites_list.add(alien)
                 self.alien_sprite_list.add(alien)
+            alien_type += 1
 
     def end_game(self):
         self.game_over = True
@@ -52,6 +55,8 @@ class AlienGame:
                 if event.type == pygame.QUIT:
                     return
             self.all_sprites_list.update()
+
+            self.s.write(str.encode("1"))
 
             # read data from microbit 
             data = self.s.readline().decode('UTF-8')
@@ -135,9 +140,18 @@ class AlienGame:
             # update the screen
             self.all_sprites_list.draw(self.screen)
 
-            if self.game_over:
+            if len(self.alien_sprite_list) == 0:
+                self.end_game()
+                self.game_won = True
+
+            if self.game_over and not self.game_won:
                 self.centre_printer.print('GAME OVER', GREEN)
                 self.centre_printer_small.print('Press  A  to  start  a  new  game', GREEN)
+
+            if self.game_won:
+                self.centre_printer.print('OMG YOU WON!', BLUE)
+                self.centre_printer_small.print('Press  A  to  start  a  new  game', GREEN)
+            
             pygame.display.flip()
          
             # Limit to 60 frames per second
