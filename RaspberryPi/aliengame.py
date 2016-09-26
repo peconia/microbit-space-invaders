@@ -36,6 +36,7 @@ class AlienGame:
         self.bullet_sprite_list = pygame.sprite.Group()
         self.alien_sprite_list = pygame.sprite.Group()
         self.alien_bullet_sprite_list = pygame.sprite.Group()
+        self.s.write(str.encode("1"))
 
         self.all_sprites_list.add(self.player)
 
@@ -51,6 +52,7 @@ class AlienGame:
     def end_game(self):
         self.game_over = True
         self.all_sprites_list = pygame.sprite.Group()
+        self.s.write(str.encode("2"))
 
     def play(self):
     
@@ -62,8 +64,6 @@ class AlienGame:
                     for alien in self.alien_sprite_list:
                         alien.move_down()
             self.all_sprites_list.update()
-
-            self.s.write(str.encode("1"))
 
             # read data from microbit 
             data = self.s.readline().decode('UTF-8')
@@ -110,12 +110,16 @@ class AlienGame:
                 for alien in alien_hit_list:
                     bullet.kill()  # removes sprite from all sprite lists
                     self.points += 1
+                    self.s.write(str.encode("4"))
+                    
 
+                # check if hit alien bullet
                 alien_bullet_hit_list = pygame.sprite.spritecollide(bullet, self.alien_bullet_sprite_list, True)
 
                 for alien_bullet in alien_bullet_hit_list:
                     bullet.kill()
                     self.points += 1
+                    self.s.write(str.encode("4"))
 
                 # clean up bullet if it is outside of screen
                 if bullet.rect.y < -10:
@@ -124,6 +128,7 @@ class AlienGame:
             # handle alien bullets
             for bullet in self.alien_bullet_sprite_list:
                 if bullet.rect.colliderect(self.player.rect):
+                    self.s.write(str.encode("3"))
                     self.end_game()
                 
                 # clean up bullet if it is outside of screen
@@ -132,10 +137,8 @@ class AlienGame:
 
             # check if aliens touch player or get out of screen
             for alien in self.alien_sprite_list:
-                if alien.rect.colliderect(self.player.rect):
-                    self.end_game()
-
-                if alien.rect.bottom > self.height:
+                if alien.rect.colliderect(self.player.rect) or alien.rect.bottom > self.height:
+                    self.s.write(str.encode("3"))
                     self.end_game()
                     
             # clear screen
