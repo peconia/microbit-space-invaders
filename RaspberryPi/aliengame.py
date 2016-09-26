@@ -101,21 +101,18 @@ class AlienGame:
                 alien_hit_list = pygame.sprite.spritecollide(bullet, self.alien_sprite_list, True)
 
                 for alien in alien_hit_list:
-                    self.bullet_sprite_list.remove(bullet)
-                    self.all_sprites_list.remove(bullet)
+                    bullet.kill()
                     self.points += 1
 
                 alien_bullet_hit_list = pygame.sprite.spritecollide(bullet, self.alien_bullet_sprite_list, True)
 
                 for alien_bullet in alien_bullet_hit_list:
-                    self.alien_bullet_sprite_list.remove(alien_bullet)
-                    self.all_sprites_list.remove(alien_bullet)
+                    bullet.kill()
                     self.points += 1
 
                 # clean up bullet if it is outside of screen
                 if bullet.rect.y < -10:
-                    self.bullet_sprite_list.remove(bullet)
-                    self.all_sprites_list.remove(bullet)
+                    bullet.kill()
 
             # handle alien bullets
             for bullet in self.alien_bullet_sprite_list:
@@ -124,8 +121,7 @@ class AlienGame:
                 
                 # clean up bullet if it is outside of screen
                 if bullet.rect.y > self.height + 10:
-                    self.bullet_sprite_list.remove(bullet)
-                    self.all_sprites_list.remove(bullet)
+                    bullet.kill()
                     
             # clear screen
             self.screen.fill(BLACK)
