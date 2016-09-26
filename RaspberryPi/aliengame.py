@@ -8,6 +8,8 @@ from alien import Alien
 from bullet import Bullet
 from alien_bullet import AlienBullet
 
+MOVEALIENEVENT = pygame.USEREVENT+1
+
 class AlienGame:
     def __init__(self, serialport, screen, width, height):
         self.s = serialport
@@ -23,6 +25,8 @@ class AlienGame:
         self.play()
 
     def start_new_game(self):
+        # make aliens move down every 4 secs
+        pygame.time.set_timer(MOVEALIENEVENT, 4000)
         self.game_over = False
         self.game_won = False
         self.player = Player(self.width, self.height)
@@ -38,7 +42,7 @@ class AlienGame:
         # add some aliens!
         alien_type = 0
         for y in range(50, 380, 60):
-            for x in range (60, 860, 100):
+            for x in range (45, 870, 85):
                 alien = Alien(x, y, alien_type % 3)
                 self.all_sprites_list.add(alien)
                 self.alien_sprite_list.add(alien)
@@ -54,6 +58,9 @@ class AlienGame:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
+                elif event.type == MOVEALIENEVENT:
+                    for alien in self.alien_sprite_list:
+                        alien.move_down()
             self.all_sprites_list.update()
 
             self.s.write(str.encode("1"))
@@ -101,7 +108,7 @@ class AlienGame:
                 alien_hit_list = pygame.sprite.spritecollide(bullet, self.alien_sprite_list, True)
 
                 for alien in alien_hit_list:
-                    bullet.kill()
+                    bullet.kill()  # removes sprite from all sprite lists
                     self.points += 1
 
                 alien_bullet_hit_list = pygame.sprite.spritecollide(bullet, self.alien_bullet_sprite_list, True)
@@ -122,6 +129,14 @@ class AlienGame:
                 # clean up bullet if it is outside of screen
                 if bullet.rect.y > self.height + 10:
                     bullet.kill()
+
+            # check if aliens touch player or get out of screen
+            for alien in self.alien_sprite_list:
+                if alien.rect.colliderect(self.player.rect):
+                    self.end_game()
+
+                if alien.rect.bottom > self.height:
+                    self.end_game()
                     
             # clear screen
             self.screen.fill(BLACK)

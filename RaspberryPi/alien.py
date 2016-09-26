@@ -12,6 +12,7 @@ class Alien(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.left = x
         self.rect.top = y
+        self.movement_counter = 1
 
     def update(self):
         self.image_number += 1
@@ -33,6 +34,15 @@ class Alien(pygame.sprite.Sprite):
         else:
             self.images = [pygame.image.load('Resources/Images/alien_1A.png'),
                    pygame.image.load('Resources/Images/alien_1B.png')]
+
+    def move_down(self):
+        self.rect.top += 10
+        if self.movement_counter % 2 == 0:
+            self.rect.left += 30
+        else:
+            self.rect.left -= 30
+        self.movement_counter += 1
+        
             
             
             
