@@ -31,7 +31,7 @@ class AlienGame:
         self.game_won = False
         self.player = Player(self.width, self.height)
         self.points = 0
-        self.ammo = 60
+        self.ammo = 100
         self.all_sprites_list = pygame.sprite.Group()
         self.bullet_sprite_list = pygame.sprite.Group()
         self.alien_sprite_list = pygame.sprite.Group()
