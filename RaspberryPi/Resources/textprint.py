@@ -1,9 +1,10 @@
 import pygame
 
-'''
-Helper class to write text on screen.
-'''
+
 class TextPrint:
+    """
+    Helper class to write text on screen.
+    """
     def __init__(self, screen, x, y, text_size):
         self.x = x
         self.y = y
@@ -18,4 +19,6 @@ class TextPrint:
         self.x = 10
         self.y = 10
         self.line_height = 15
+
+
 

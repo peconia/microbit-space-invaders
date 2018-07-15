@@ -1,6 +1,8 @@
-import serial, pygame
+import pygame
+import serial
 from pygame.locals import *
 from aliengame import AlienGame
+
 
 def open_serial_port():
     PORT = "/dev/ttyACM0"
@@ -12,6 +14,7 @@ def open_serial_port():
     s.stopbits = serial.STOPBITS_ONE
     return s
 
+
 def main():
     pygame.init()
     s = open_serial_port()
@@ -22,7 +25,7 @@ def main():
     pygame.display.set_caption("SPACE INVADERS <3")
 
     # start game loop
-    game = AlienGame(s, screen, width, height)
+    AlienGame(s, screen, width, height)
      
     # Close the serial port connection and window to quit.
     s.close()

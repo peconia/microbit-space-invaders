@@ -1,5 +1,6 @@
 import pygame
-from colours import *
+from Resources.colours import BLUE
+
 
 class Bullet(pygame.sprite.Sprite):
 

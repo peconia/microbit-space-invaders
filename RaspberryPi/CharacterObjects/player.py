@@ -1,5 +1,6 @@
 import pygame
-from bullet import Bullet
+from CharacterObjects.bullet import Bullet
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, width, height):
@@ -11,12 +12,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = self.screen_height - 10
 
     def move_left(self):
-        self.rect.left = self.rect.left - 10
+        self.rect.left -= 10
         if self.rect.left < 5:
             self.rect.left = 5
 
     def move_right(self):
-        self.rect.right = self.rect.right + 10
+        self.rect.right += 10
         if self.rect.right > self.screen_width - 5:
             self.rect.right = self.screen_width - 5
     
@@ -25,4 +26,3 @@ class Player(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.midtop)
             return bullet
         return None
-        

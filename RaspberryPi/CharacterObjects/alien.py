@@ -1,6 +1,8 @@
-import pygame
 import random
-from alien_bullet import AlienBullet
+
+import pygame
+from CharacterObjects.alien_bullet import AlienBullet
+
 
 class Alien(pygame.sprite.Sprite):
 
@@ -42,9 +44,3 @@ class Alien(pygame.sprite.Sprite):
         else:
             self.rect.left -= 30
         self.movement_counter += 1
-        
-            
-            
-            
-        
-        

@@ -1,5 +1,6 @@
 import pygame
-from colours import *
+from Resources.colours import RED
+
 
 class AlienBullet(pygame.sprite.Sprite):
 

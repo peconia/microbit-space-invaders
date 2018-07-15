@@ -1,14 +1,12 @@
-import serial, pygame
-from time import sleep
+import pygame
 from pygame.locals import *
-from textprint import *
-from player import Player
-from colours import *
-from alien import Alien
-from bullet import Bullet
-from alien_bullet import AlienBullet
+from Resources.textprint import TextPrint
+from CharacterObjects.alien import Alien
+from CharacterObjects.player import Player
+from Resources.colours import BLUE, RED, GREEN, PINK, BLACK
 
 MOVEALIENEVENT = pygame.USEREVENT+1
+
 
 class AlienGame:
     def __init__(self, serialport, screen, width, height):
@@ -65,7 +63,8 @@ class AlienGame:
                         alien.move_down()
             self.all_sprites_list.update()
 
-            # read data from microbit 
+            # read data from microbit
+            print("get data from microbit")
             data = self.s.readline().decode('UTF-8')
             data_list = data.rstrip().split(' ')
             try:
@@ -170,4 +169,3 @@ class AlienGame:
          
             # Limit to 60 frames per second
             self.clock.tick(60)
-            
