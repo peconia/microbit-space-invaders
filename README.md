@@ -16,7 +16,7 @@ virtualenv with python 3.6. Install all the requirements with
     ```
 
 You can then run Mu editor with command `mu-editor`. If you have any issues with the mu editor, please check
-their website and github for help.
+their [website](https://codewith.mu/en/) and github for help.
 
 Copy and paste the mbit.py file contents into Mu and then flash the code on to the microbit.
 
@@ -40,6 +40,9 @@ Note that you must logout and back in for the serial to work.
 Make sure the microbit is connected via USB and has been flashed with the code in mbit.py.
 
 Start the game by running `python3 main_game.py`
+
+Tilt the microbit to move the player space ship left and right, and shoot with the B button. Careful not to run
+out of ammo!
 
 Stop the game with `Ctrl+C`
 

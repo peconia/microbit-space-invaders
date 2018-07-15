@@ -3,7 +3,7 @@ from pygame.locals import *
 from Resources.textprint import TextPrint
 from CharacterObjects.alien import Alien
 from CharacterObjects.player import Player
-from Resources.colours import BLUE, RED, GREEN, PINK, BLACK
+from Resources.colours import BLUE, PINK
 
 MOVEALIENEVENT = pygame.USEREVENT+1
 
@@ -16,6 +16,7 @@ class AlienGame:
         self.height = height
         self.points_printer = TextPrint(screen, 10, 10, 25)
         self.ammo_printer = TextPrint(screen, width - 200, 10, 25)
+        self.lives_printer = TextPrint(screen, width - 500, 10, 25)
         self.centre_printer = TextPrint(screen, 255, height/2 - 50, 100)
         self.centre_printer_small = TextPrint(screen, 65, height/2 + 50, 60)
         self.clock = pygame.time.Clock()
@@ -126,8 +127,12 @@ class AlienGame:
             # handle alien bullets
             for bullet in self.alien_bullet_sprite_list:
                 if bullet.rect.colliderect(self.player.rect):
+                    # ammo hit the player
                     self.s.write(str.encode("3"))
-                    self.end_game()
+                    bullet.kill()  # remove the bullet so the same one won't collide with player again
+                    self.player.lives -= 1
+                    if self.player.lives < 1:
+                        self.end_game()
                 
                 # clean up bullet if it is outside of screen
                 if bullet.rect.y > self.height + 10:
@@ -135,36 +140,52 @@ class AlienGame:
 
             # check if aliens touch player or get out of screen
             for alien in self.alien_sprite_list:
-                if alien.rect.colliderect(self.player.rect) or alien.rect.bottom > self.height:
+                if alien.rect.colliderect(self.player.rect):
+                    # alien hit player
+                    self.s.write(str.encode("3"))
+                    self.player.lives -= 1
+                    if self.player.lives < 1:
+                        self.end_game()
+                    else:
+                        alien.kill()  # remove so won't collide with player again
+
+                if alien.rect.bottom > self.height:
+                    # alien went off screen, end game
                     self.s.write(str.encode("3"))
                     self.end_game()
-                    
-            # clear screen
-            self.screen.fill(BLACK)
 
-            # update points and ammo
-            self.points_printer.print('POINTS    {0:0>3}'.format(str(self.points)), PINK)
-            if self.ammo > 5:
-                self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), PINK)
-            else:
-                self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), RED)
-
-            # update the screen
-            self.all_sprites_list.draw(self.screen)
+            self.update_screen()
 
             if len(self.alien_sprite_list) == 0:
+                # all aliens have been killed!
                 self.end_game()
                 self.game_won = True
 
             if self.game_over and not self.game_won:
-                self.centre_printer.print('GAME OVER', GREEN)
-                self.centre_printer_small.print('Press  A  to  start  a  new  game', GREEN)
+                self.centre_printer.print('GAME OVER', pygame.Color("Green"))
+                self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Green"))
 
             if self.game_won:
                 self.centre_printer.print('OMG YOU WON!', BLUE)
-                self.centre_printer_small.print('Press  A  to  start  a  new  game', GREEN)
+                self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Red"))
             
             pygame.display.flip()
          
             # Limit to 60 frames per second
             self.clock.tick(60)
+
+    def update_screen(self):
+        """
+        Helper to update the text and sprites on screen
+        """
+        # clear screen
+        self.screen.fill(pygame.Color("Black"))
+        # update points, lives  and ammo
+        self.points_printer.print('POINTS    {0:0>3}'.format(str(self.points)), PINK)
+        if self.ammo > 5:
+            self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), PINK)
+        else:
+            self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), pygame.Color("Red"))
+        self.lives_printer.print('Lives     {0:0>3}'.format(self.player.lives), PINK)
+        # update the screen
+        self.all_sprites_list.draw(self.screen)

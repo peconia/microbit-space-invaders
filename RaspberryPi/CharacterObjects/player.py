@@ -10,6 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load('Resources/Images/Player.png')
         self.rect = self.image.get_rect()
         self.rect.bottom = self.screen_height - 10
+        self.lives = 3
 
     def move_left(self):
         self.rect.left -= 10

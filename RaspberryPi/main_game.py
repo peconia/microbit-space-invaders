@@ -21,7 +21,9 @@ def main():
 
     # Set up the game window and starting point
     size = width, height = 900, 600
+    # screen = pygame.display.set_mode(size, pygame.FULLSCREEN)# do this after adding exit
     screen = pygame.display.set_mode(size)
+
     pygame.display.set_caption("SPACE INVADERS <3")
 
     # start game loop

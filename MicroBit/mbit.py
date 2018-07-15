@@ -22,6 +22,7 @@ while True:
         elif data == b'2':
             display.show(Image.ARROW_W, wait=False)
         elif data == b'3':
+            # ammo hit the player
             #TODO: add haptic feedback???
             pass
         elif data == b'4':
