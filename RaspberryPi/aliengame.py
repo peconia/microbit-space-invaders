@@ -64,7 +64,6 @@ class AlienGame:
             self.all_sprites_list.update()
 
             # read data from microbit
-            print("get data from microbit")
             data = self.s.readline().decode('UTF-8')
             data_list = data.rstrip().split(' ')
             try:

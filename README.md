@@ -2,6 +2,8 @@
 
 Work in progress.
 
+![Screenshot of the game](example_screenshot.png?raw=true "Screenshot of the game")
+
 This project is a space invader game that you can run on a Raspberry Pi (or on some other linux system), and use
 a BBC Micro:bit as a game controller. The Micro:bit should be attached to the Pi via USB.
 
