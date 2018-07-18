@@ -26,4 +26,3 @@ class Player(pygame.sprite.Sprite):
         if ammo > 0:
             bullet = Bullet(self.rect.midtop)
             return bullet
-        return None
