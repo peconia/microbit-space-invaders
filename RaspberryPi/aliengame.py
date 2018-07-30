@@ -165,11 +165,13 @@ class AlienGame:
         for bullet in self.alien_bullet_sprite_list:
             if bullet.rect.colliderect(self.player.rect):
                 # ammo hit the player
-                self.s.write(str.encode("3"))
                 bullet.kill()  # remove the bullet so the same one won't collide with player again
                 self.player.lives -= 1
                 if self.player.lives < 1:
                     self.end_game()
+                else:
+                    # tell the microbit to vibrate
+                    self.s.write(str.encode("3"))
 
             # clean up bullet if it is outside of screen
             if bullet.rect.y > self.height + 10:
