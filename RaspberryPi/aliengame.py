@@ -1,12 +1,14 @@
 import pygame
 from pygame.locals import *
 from CharacterObjects.explosion import Explosion
+from CharacterObjects.ufo import Ufo
 from Resources.textprint import TextPrint
 from CharacterObjects.alien import Alien
 from CharacterObjects.player import Player
 from Resources.colours import BLUE, PINK
 
 MOVEALIENEVENT = pygame.USEREVENT+1
+MOVEUFOEVENT = pygame.USEREVENT+2
 
 
 class AlienGame:
@@ -21,6 +23,7 @@ class AlienGame:
         self.centre_printer = TextPrint(screen, 255, height/2 - 50, 100)
         self.centre_printer_small = TextPrint(screen, 65, height/2 + 50, 60)
         self.move_down_timer = 4000
+        self.game_ending_message_sent = False
         self.clock = pygame.time.Clock()
         self.start_new_game()
         self.play()
@@ -28,15 +31,19 @@ class AlienGame:
     def start_new_game(self):
         # make aliens move down every 4 secs
         pygame.time.set_timer(MOVEALIENEVENT, self.move_down_timer)
+        pygame.time.set_timer(MOVEUFOEVENT, 50)
         self.game_over = False
         self.game_won = False
         self.player = Player(self.width, self.height)
         self.points = 0
         self.ammo = 100
         self.all_sprites_list = pygame.sprite.Group()
+        self.ufo_sprites_list = pygame.sprite.Group()
         self.player_bullet_sprite_list = pygame.sprite.Group()
         self.alien_sprite_list = pygame.sprite.Group()
         self.alien_bullet_sprite_list = pygame.sprite.Group()
+        self.game_ending_message_sent = False
+        self.alien_move_down_counter = 0
         self.s.write(str.encode("1"))
 
         self.all_sprites_list.add(self.player)
@@ -53,7 +60,6 @@ class AlienGame:
     def end_game(self):
         self.game_over = True
         self.all_sprites_list = pygame.sprite.Group()
-        self.s.write(str.encode("2"))
 
     def play(self):
     
@@ -62,8 +68,17 @@ class AlienGame:
                 if event.type == pygame.QUIT:
                     return
                 elif event.type == MOVEALIENEVENT:
+                    self.alien_move_down_counter += 1
                     for alien in self.alien_sprite_list:
                         alien.move_down()
+                    if self.alien_move_down_counter % 7 == 0 and len(self.ufo_sprites_list) < 1:
+                        # create an ufo for extra points
+                        ufo = Ufo(self.width, self.height)
+                        self.ufo_sprites_list.add(ufo)
+                        self.all_sprites_list.add(ufo)
+                elif event.type == MOVEUFOEVENT:
+                    for ufo in self.ufo_sprites_list:
+                        ufo.move_right()
             self.all_sprites_list.update()
 
             # read data from microbit
@@ -154,6 +169,15 @@ class AlienGame:
                 self.points += 1
                 self.s.write(str.encode("4"))
 
+            ufo_hit_list = pygame.sprite.spritecollide(bullet, self.ufo_sprites_list, True)
+
+            for ufo in ufo_hit_list:
+                bullet.kill()
+                explosion = Explosion(ufo.rect.center)
+                self.all_sprites_list.add(explosion)
+                self.points += 500
+                self.s.write(str.encode("4"))
+
             # clean up bullet if it is outside of screen
             if bullet.rect.y < -10:
                 bullet.kill()
@@ -196,6 +220,10 @@ class AlienGame:
                 self.s.write(str.encode("3"))
                 self.end_game()
 
+        for ufo in self.ufo_sprites_list:
+            if ufo.rect.left > self.width:
+                ufo.kill()
+
     def update_screen(self):
         """
         Helper to update the text and sprites on screen
@@ -218,8 +246,14 @@ class AlienGame:
             self.end_game()
             self.game_won = True
         if self.game_over and not self.game_won:
+            if not self.game_ending_message_sent:
+                self.s.write(str.encode("2"))
+                self.game_ending_message_sent = True
             self.centre_printer.print('GAME OVER', pygame.Color("Green"))
             self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Green"))
         if self.game_won:
+            if not self.game_ending_message_sent:
+                self.s.write(str.encode("5"))
+                self.game_ending_message_sent = True
             self.centre_printer.print('OMG YOU WON!', BLUE)
             self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Red"))
