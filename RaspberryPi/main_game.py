@@ -5,7 +5,7 @@ from aliengame import AlienGame
 
 
 def open_serial_port():
-    PORT = "/dev/ttyACM0"
+    PORT = "/dev/tty.usbmodem3302"
     BAUD = 115200
     s = serial.Serial(PORT)
     s.baudrate = BAUD

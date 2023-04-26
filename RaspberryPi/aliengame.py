@@ -112,10 +112,7 @@ class AlienGame:
             x, a, b = data_list
             # handle player moving
             x = float(x)
-            if x > 50:
-                self.player.move_right()
-            elif x < - 50:
-                self.player.move_left()
+            self.player.move(x)
 
             # handle button presses
             if a == 'True' and b == 'True':

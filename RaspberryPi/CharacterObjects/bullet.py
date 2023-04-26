@@ -11,4 +11,4 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=position)
 
     def update(self):
-        self.rect.y -= 6
+        self.rect.y -= 7
