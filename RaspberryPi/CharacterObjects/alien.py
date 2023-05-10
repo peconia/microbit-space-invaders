@@ -6,7 +6,7 @@ from CharacterObjects.alien_bullet import AlienBullet
 
 class Alien(pygame.sprite.Sprite):
 
-    def __init__(self, x, y, alien_type=1):
+    def __init__(self, x, y, level, alien_type=1):
         super().__init__()
         self.image_number = 0
         self.get_images_for_type(alien_type)
@@ -14,15 +14,21 @@ class Alien(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.left = x
         self.rect.top = y
+        self.level = level
         self.movement_counter = 1
+        self.animation_counter = 0
 
     def update(self):
-        self.image_number += 1
-        self.image = self.images[self.image_number % 2]
+        # manage the image updating - slow it down a bit
+        self.animation_counter += 1
+        if self.animation_counter > 3:
+            self.image_number = 1 - self.image_number
+            self.image = self.images[self.image_number]
+            self.animation_counter = 0
 
     def shoot(self):
         if not random.randrange(700):
-            bullet = AlienBullet(self.rect.midbottom)
+            bullet = AlienBullet(self.rect.midbottom, self.level)
             return bullet
         return None
 

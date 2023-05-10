@@ -7,8 +7,9 @@ from CharacterObjects.alien import Alien
 from CharacterObjects.player import Player
 from Resources.colours import BLUE, PINK
 
-MOVEALIENEVENT = pygame.USEREVENT+1
-MOVEUFOEVENT = pygame.USEREVENT+2
+MOVEALIENEVENT = pygame.USEREVENT + 1
+MOVEUFOEVENT = pygame.USEREVENT + 2
+CREATEUFOEVENT = pygame.USEREVENT + 3
 
 
 class AlienGame:
@@ -19,10 +20,13 @@ class AlienGame:
         self.height = height
         self.points_printer = TextPrint(screen, 10, 10, 25)
         self.ammo_printer = TextPrint(screen, width - 200, 10, 25)
-        self.lives_printer = TextPrint(screen, width - 500, 10, 25)
-        self.centre_printer = TextPrint(screen, 255, height/2 - 50, 100)
-        self.centre_printer_small = TextPrint(screen, 65, height/2 + 50, 60)
+        self.lives_printer = TextPrint(screen, width - 650, 10, 25)
+        self.level_printer = TextPrint(screen, width - 400, 10, 25)
+        self.centre_printer = TextPrint(screen, 255, height / 2 - 50, 100)
+        self.centre_printer_small = TextPrint(screen, 65, height / 2 + 50, 60)
         self.move_down_timer = 4000
+        self.create_ufo_timer = 28000
+        self.levels_to_win = 5
         self.game_ending_message_sent = False
         self.clock = pygame.time.Clock()
         self.start_new_game()
@@ -30,12 +34,15 @@ class AlienGame:
 
     def start_new_game(self):
         # make aliens move down every 4 secs
+        self.move_down_timer = 4000  # must be reset before game
         pygame.time.set_timer(MOVEALIENEVENT, self.move_down_timer)
         pygame.time.set_timer(MOVEUFOEVENT, 50)
+        pygame.time.set_timer(CREATEUFOEVENT, self.create_ufo_timer)
         self.game_over = False
         self.game_won = False
         self.player = Player(self.width, self.height)
         self.points = 0
+        self.level = 1
         self.ammo = 100
         self.all_sprites_list = pygame.sprite.Group()
         self.ufo_sprites_list = pygame.sprite.Group()
@@ -43,26 +50,47 @@ class AlienGame:
         self.alien_sprite_list = pygame.sprite.Group()
         self.alien_bullet_sprite_list = pygame.sprite.Group()
         self.game_ending_message_sent = False
+        self.levelling_up = 0
         self.alien_move_down_counter = 0
         self.s.write(str.encode("1"))
 
         self.all_sprites_list.add(self.player)
+        self.add_aliens()
 
-        # add some aliens!
-        alien_type = 0
+    def add_aliens(self):
+        alien_type = self.level - 1
         for y in range(50, 380, 60):
             for x in range(45, 870, 85):
-                alien = Alien(x, y, alien_type % 3)
+                alien = Alien(x, y, self.level, alien_type % 3)
                 self.all_sprites_list.add(alien)
                 self.alien_sprite_list.add(alien)
             alien_type += 1
+
+    def start_level_up(self):
+        if not self.game_over and self.level < self.levels_to_win:
+            self.levelling_up = 1
+            self.ammo += 75
+            self.level += 1
+            self.s.write(str.encode("6"))
+
+    def finish_level_up(self):
+        self.levelling_up = 0
+        # clear old bullets as otherwise they kill aliens as they spawn
+        self.clear_sprite_list(self.player_bullet_sprite_list)
+        self.clear_sprite_list(self.alien_bullet_sprite_list)
+
+        # speed up aliens
+        if self.move_down_timer > 500:
+            self.move_down_timer -= 900
+            pygame.time.set_timer(MOVEALIENEVENT, self.move_down_timer)
+        self.add_aliens()
 
     def end_game(self):
         self.game_over = True
         self.all_sprites_list = pygame.sprite.Group()
 
     def play(self):
-    
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -71,11 +99,11 @@ class AlienGame:
                     self.alien_move_down_counter += 1
                     for alien in self.alien_sprite_list:
                         alien.move_down()
-                    if self.alien_move_down_counter % 7 == 0 and len(self.ufo_sprites_list) < 1:
-                        # create an ufo for extra points
-                        ufo = Ufo(self.width, self.height)
-                        self.ufo_sprites_list.add(ufo)
-                        self.all_sprites_list.add(ufo)
+                elif event.type == CREATEUFOEVENT and len(self.ufo_sprites_list) < 1:
+                    # create an ufo for extra points
+                    ufo = Ufo(self.width, self.height)
+                    self.ufo_sprites_list.add(ufo)
+                    self.all_sprites_list.add(ufo)
                 elif event.type == MOVEUFOEVENT:
                     for ufo in self.ufo_sprites_list:
                         ufo.move_right()
@@ -96,9 +124,9 @@ class AlienGame:
             self.update_screen()
 
             self.check_if_game_over()
-            
+
             pygame.display.flip()
-         
+
             # Limit to 60 frames per second
             self.clock.tick(60)
 
@@ -156,7 +184,6 @@ class AlienGame:
                 self.all_sprites_list.add(explosion)
                 self.points += 1
                 self.s.write(str.encode("4"))
-
 
             # check if hit alien bullet
             alien_bullet_hit_list = pygame.sprite.spritecollide(bullet, self.alien_bullet_sprite_list, True)
@@ -217,6 +244,12 @@ class AlienGame:
                 self.s.write(str.encode("3"))
                 self.end_game()
 
+        if len(self.alien_sprite_list) == 0:
+            if not self.levelling_up:
+                self.start_level_up()
+            else:
+                self.levelling_up += 1
+
         for ufo in self.ufo_sprites_list:
             if ufo.rect.left > self.width:
                 ufo.kill()
@@ -229,16 +262,24 @@ class AlienGame:
         self.screen.fill(pygame.Color("Black"))
         # update points, lives  and ammo
         self.points_printer.print('POINTS    {0:0>3}'.format(str(self.points)), PINK)
-        if self.ammo > 5:
+        level = self.levels_to_win if self.level > self.levels_to_win else self.level
+        self.level_printer.print('Level    {0:0>2}'.format(str(level)), PINK)
+        if self.ammo > 10:
             self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), PINK)
         else:
             self.ammo_printer.print('AMMUNITION    {0:0>3}'.format(str(self.ammo)), pygame.Color("Red"))
         self.lives_printer.print('Lives     {0:0>3}'.format(self.player.lives), PINK)
+
+        if not self.game_over:
+            if 0 < self.levelling_up < 15:
+                self.centre_printer.print('Level {}'.format(self.level), pygame.Color("Green"))
+            elif self.levelling_up >= 15:
+                self.finish_level_up()
         # update the screen
         self.all_sprites_list.draw(self.screen)
 
     def check_if_game_over(self):
-        if len(self.alien_sprite_list) == 0:
+        if len(self.alien_sprite_list) == 0 and self.level >= self.levels_to_win and not self.levelling_up:
             # all aliens have been killed!
             self.end_game()
             self.game_won = True
@@ -252,5 +293,10 @@ class AlienGame:
             if not self.game_ending_message_sent:
                 self.s.write(str.encode("5"))
                 self.game_ending_message_sent = True
-            self.centre_printer.print('OMG YOU WON!', BLUE)
-            self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Red"))
+            self.centre_printer.print('YOU WON!', BLUE)
+            self.centre_printer_small.print('Press  A  to  start  a  new  game', pygame.Color("Purple"))
+
+    def clear_sprite_list(self, sprite_list):
+        # helper to clear any sprite list and ensure those sprites are killed form all other sprite lists too
+        for item in sprite_list:
+            item.kill()  # removes from all sprite lists

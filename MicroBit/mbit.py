@@ -1,14 +1,17 @@
 from microbit import *
 
+
 def send_sensor_data():
     x = accelerometer.get_x()
     a, b = button_a.was_pressed(), button_b.was_pressed()
     print(x, a, b)
 
+
 def show_hearts():
     hearts = [Image.HEART_SMALL, Image.HEART]
     display.clear()
     display.show(hearts, wait=False, delay=200)
+
 
 def vibrate_angrily():
     for x in range(14):
@@ -16,6 +19,7 @@ def vibrate_angrily():
         sleep(70)
         pin1.write_digital(0)
         sleep(50)
+
 
 def vibrate_happily():
     for x in range(4):
@@ -28,10 +32,15 @@ def vibrate_happily():
         pin1.write_digital(0)
         sleep(40)
 
+
 uart.init(115200)
 
 motor_on = False
 motor_counter = 0
+
+level_up_motor_on = False
+level_up_motor_counter = 0
+
 while True:
     sleep(100)
     send_sensor_data()
@@ -41,6 +50,7 @@ while True:
             display.show(Image.ARROW_E, wait=False)
         elif data == b'2':
             # game lost
+            display.show(Image.SAD)
             vibrate_angrily()
             display.show(Image.ARROW_W, wait=False)
         elif data == b'3':
@@ -57,11 +67,26 @@ while True:
             display.show(Image.HAPPY, wait=False)
             vibrate_happily()
             display.show(Image.ARROW_W, wait=False)
+        elif data == b'6':
+            # level up
+            display.show(Image.HAPPY, wait=False)
+            pin1.write_digital(1)
+            level_up_motor_on = True
+            level_up_motor_counter = 0
     if motor_on:
         motor_counter += 1
         if motor_counter > 5:
             pin1.write_digital(0)
             display.clear()
             motor_on = False
-    else:
+    if level_up_motor_on:
+        level_up_motor_counter += 1
+        if level_up_motor_counter % 2 == 0:
+            pin1.write_digital(0)
+        else:
+            pin1.write_digital(1)
+        if level_up_motor_counter > 10:
+            display.clear()
+            level_up_motor_on = False
+    if not motor_on and not level_up_motor_on:
         pin1.write_digital(0)
